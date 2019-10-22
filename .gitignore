@@ -17,3 +17,6 @@ vendor/
 
 # Log files
 logs/
+
+# Test files
+testing/
