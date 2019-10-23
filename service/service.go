@@ -54,11 +54,16 @@ func (s *Service) run() {
 		logger.Error.Fatal("Load or Generation of RSA key failed")
 	}
 
+	// Handlers
 	jwks := handlers.JwksHandler
 	jwks.SetCertificate(privateKey)
 
+	token := handlers.TokenHandler
+	token.SetCertificate(privateKey)
+
 	r := mux.NewRouter()
-	r.HandleFunc("/.well-known/jwks.json", jwks.Handle)
+	r.HandleFunc("/.well-known/jwks.json", jwks.Handle).Methods("GET")
+	r.HandleFunc("/auth/token", token.Handle).Methods("POST")
 	r.Use(middleware.LoggingMiddleware)
 
 	srv := &http.Server{

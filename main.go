@@ -62,7 +62,7 @@ type Cmd struct {
 func (c *Cmd) Close() {
 	log.Println("closing program...")
 	// wait for program to clean up nicely
-	time.Sleep(5 * time.Second)
+	time.Sleep(2 * time.Second)
 	logger.Info.Println("closed program")
 	close(c.Closed)
 }
@@ -88,7 +88,7 @@ func blockOnSignal(s *service.Service) {
 	select {
 	case <-signalCh:
 		logger.Warning.Println("second signal received, initializing hard shutdown")
-	case <-time.After(time.Second * 10):
+	case <-time.After(time.Second * 5):
 		logger.Warning.Println("time limit reached, initializing hard shutdown")
 	case <-cmd.Closed:
 		logger.Info.Println("server shutdown completed")
