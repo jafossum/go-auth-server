@@ -1,0 +1,13 @@
+syntax = "proto3";
+package auth;
+
+message Authorization {
+    string api_key = 1;
+    repeated Client clients = 2;
+}
+
+message Client {
+    string client_id = 1;
+    string client_secret = 2;
+    repeated string claims = 3;
+}
