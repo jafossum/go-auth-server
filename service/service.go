@@ -14,8 +14,8 @@ import (
 	"github.com/jafossum/go-auth-server/config"
 	"github.com/jafossum/go-auth-server/handlers"
 	"github.com/jafossum/go-auth-server/handlers/middleware"
-	"github.com/jafossum/go-auth-server/logger"
-	"github.com/jafossum/go-auth-server/rsa"
+	"github.com/jafossum/go-auth-server/utils/logger"
+	"github.com/jafossum/go-auth-server/utils/rsa"
 )
 
 // Service : Service Struct
@@ -49,7 +49,7 @@ func (s *Service) run() {
 	logger.Info.Println("Auth Service running")
 
 	// Load ort generate RSA keys
-	privateKey, err := rsa.ParseRsaKeys(s.config.RsaPrivate, s.config.RsaPublic, s.config.RsaPass)
+	privateKey, err := rsa.ParseRsaKeys(s.config.RsaPrivate, s.config.RsaPass, s.config.RsaPublic)
 	if err != nil {
 		logger.Error.Fatal("Load or Generation of RSA key failed")
 	}

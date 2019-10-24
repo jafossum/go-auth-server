@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/jafossum/go-auth-server/logger"
+	"github.com/jafossum/go-auth-server/utils/logger"
 )
 
 // LoggingMiddleware - Logg handling for all requests

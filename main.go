@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/jafossum/go-auth-server/config"
-	"github.com/jafossum/go-auth-server/logger"
+	"github.com/jafossum/go-auth-server/utils/logger"
 	"github.com/jafossum/go-auth-server/service"
 	"github.com/namsral/flag"
 )

@@ -2,14 +2,14 @@ package handlers
 
 import (
 	"crypto/rsa"
-	"crypto/sha1"
-	b64 "encoding/base64"
+	"crypto/x509"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
-	"github.com/jafossum/go-auth-server/logger"
 	"github.com/jafossum/go-auth-server/models"
+	"github.com/jafossum/go-auth-server/utils/base64"
+	"github.com/jafossum/go-auth-server/utils/logger"
+	rsaa "github.com/jafossum/go-auth-server/utils/rsa"
 )
 
 // JwksHandler - JWKS handler
@@ -28,19 +28,18 @@ func (h *jwksHandler) SetCertificate(privateKey *rsa.PrivateKey) {
 func (h *jwksHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("JWKS Endpoint")
 
-	fp := sha1.Sum([]byte(fmt.Sprintf("%v", h.privateKey.PublicKey)))
+	pub := base64.EncodeToString(x509.MarshalPKCS1PublicKey(&h.privateKey.PublicKey))
+	fp := rsaa.GetSha1Thumbprint(&h.privateKey.PublicKey)
 
 	key := &models.JSONWebKeys{}
 	key.Alg = "RSA256"
 	key.Kty = "RSA"
 	key.Use = "sig"
-	key.X5c = []string{b64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("%v", h.privateKey.PublicKey)))}
-	key.N = b64.URLEncoding.EncodeToString([]byte(h.privateKey.PublicKey.N.String()))
-	key.E = "AQAB"
-	key.Kid = b64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("%x", fp)))
-	key.X5t = b64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("%x", fp)))
-
-	fmt.Println(fp)
+	key.X5c = []string{pub}
+	key.N = base64.EncodeToString(h.privateKey.PublicKey.N.Bytes())
+	key.E = base64.EncodeUint64ToString(uint64(h.privateKey.E))
+	key.Kid = fp
+	key.X5t = fp
 
 	keys := &models.Jwks{Keys: []models.JSONWebKeys{*key}}
 

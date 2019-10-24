@@ -7,7 +7,7 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/jafossum/go-auth-server/logger"
+	"github.com/jafossum/go-auth-server/utils/logger"
 	"github.com/jafossum/go-auth-server/models"
 )
 
