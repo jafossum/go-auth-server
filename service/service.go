@@ -15,7 +15,7 @@ import (
 	"github.com/jafossum/go-auth-server/handlers"
 	"github.com/jafossum/go-auth-server/handlers/middleware"
 	"github.com/jafossum/go-auth-server/utils/logger"
-	"github.com/jafossum/go-auth-server/utils/rsa"
+	"github.com/jafossum/go-auth-server/crypto/rsa"
 )
 
 // Service : Service Struct

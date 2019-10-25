@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/jafossum/go-auth-server/utils/base64"
+	"github.com/jafossum/go-auth-server/crypto/base64"
 	"github.com/jafossum/go-auth-server/utils/logger"
 )
 

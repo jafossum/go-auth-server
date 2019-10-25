@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	"github.com/jafossum/go-auth-server/models"
-	"github.com/jafossum/go-auth-server/utils/base64"
+	"github.com/jafossum/go-auth-server/crypto/base64"
 	"github.com/jafossum/go-auth-server/utils/logger"
-	rsaa "github.com/jafossum/go-auth-server/utils/rsa"
+	rsaa "github.com/jafossum/go-auth-server/crypto/rsa"
 )
 
 // JwksHandler - JWKS handler
