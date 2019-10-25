@@ -7,8 +7,9 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/jafossum/go-auth-server/utils/logger"
+	rsaa "github.com/jafossum/go-auth-server/crypto/rsa"
 	"github.com/jafossum/go-auth-server/models"
+	"github.com/jafossum/go-auth-server/utils/logger"
 )
 
 // TokenHandler - JWKS handler
@@ -46,7 +47,7 @@ func (h *tokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 type myClaimsStructure struct {
 	*jwt.StandardClaims
-	Admin string `json:"admin"`
+	Scope string `json:"scope"`
 }
 
 func (h *tokenHandler) generateJWT(audience string) (string, error) {
@@ -58,9 +59,10 @@ func (h *tokenHandler) generateJWT(audience string) (string, error) {
 			ExpiresAt: time.Now().Add(time.Second * 3600).Unix(),
 			Audience:  audience,
 		},
-		"1",
+		"read:messages admin",
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	token.Header["kid"] = rsaa.GetSha1Thumbprint(&h.privateKey.PublicKey)
 	tokenString, err := token.SignedString(h.privateKey)
 	if err != nil {
 		logger.Error.Printf("Sign token error: %s", err.Error())

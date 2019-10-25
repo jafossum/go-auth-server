@@ -9,5 +9,6 @@ message Authorization {
 message Client {
     string client_id = 1;
     string client_secret = 2;
-    repeated string claims = 3;
+    string is_admin = 3;
+    repeated string scope = 4;
 }

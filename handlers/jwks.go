@@ -6,10 +6,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/jafossum/go-auth-server/models"
 	"github.com/jafossum/go-auth-server/crypto/base64"
-	"github.com/jafossum/go-auth-server/utils/logger"
 	rsaa "github.com/jafossum/go-auth-server/crypto/rsa"
+	"github.com/jafossum/go-auth-server/models"
+	"github.com/jafossum/go-auth-server/utils/logger"
 )
 
 // JwksHandler - JWKS handler
@@ -27,8 +27,15 @@ func (h *jwksHandler) SetCertificate(privateKey *rsa.PrivateKey) {
 // Handle - JWKS Endpoint handler
 func (h *jwksHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("JWKS Endpoint")
+	w.Header().Set("Content-Type", "application/json")
 
-	pub := base64.EncodeToString(x509.MarshalPKCS1PublicKey(&h.privateKey.PublicKey))
+	keys := &models.Jwks{}
+	k, err := x509.MarshalPKIXPublicKey(&h.privateKey.PublicKey)
+	if err != nil {
+		json.NewEncoder(w).Encode(keys)
+		return
+	}
+	pub := base64.EncodeToString(k)
 	fp := rsaa.GetSha1Thumbprint(&h.privateKey.PublicKey)
 
 	key := &models.JSONWebKeys{}
@@ -41,8 +48,6 @@ func (h *jwksHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	key.Kid = fp
 	key.X5t = fp
 
-	keys := &models.Jwks{Keys: []models.JSONWebKeys{*key}}
-
-	w.Header().Set("Content-Type", "application/json")
+	keys.Keys = []models.JSONWebKeys{*key}
 	json.NewEncoder(w).Encode(keys)
 }

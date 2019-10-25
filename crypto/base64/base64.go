@@ -9,7 +9,7 @@ import (
 
 // EncodeToString - Encode byte to string
 func EncodeToString(src []byte) string {
-	return base64.RawURLEncoding.EncodeToString(src)
+	return base64.RawStdEncoding.EncodeToString(src)
 }
 
 // EncodeUint64ToString - Encode Uint64
@@ -27,5 +27,5 @@ func EncodeUint64ToString(v uint64) string {
 
 // DecodeString - Decode string to byte
 func DecodeString(src string) ([]byte, error) {
-	return base64.RawURLEncoding.DecodeString(src)
+	return base64.RawStdEncoding.DecodeString(src)
 }
