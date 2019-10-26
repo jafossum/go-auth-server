@@ -1,9 +1,25 @@
 # Go parameters
 MODELS=${PWD}/models
+MOCK=mocks
 
-# .PHONY: binaries
+TEST_PKGS=./handlers/... ./service ./models/...
+GEN_PKGS=./handlers/...
+VET_PKGS=./crypto/... ./handlers/... ./models ./utils/...
 
-all: proto
+.PHONY: all proto test fmt
+
+all: clean proto test fmt
+
+clean:
+	rm -rf ${MOCK}
+
+test:
+	go generate $(GEN_PKGS)
+	go vet $(VET_PKGS)
+	go test -v $(TEST_PKGS)
+
+fmt:
+	go fmt $(VET_PKGS)
 
 proto:
 	protoc -I .  --proto_path=${MODELS}/proto --go_out=${MODELS} auth.proto
