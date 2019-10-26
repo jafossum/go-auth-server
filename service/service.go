@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"runtime/debug"
@@ -46,7 +46,22 @@ func (s *Service) Stop() error {
 
 func (s *Service) run() {
 	defer catchPanic()
-	logger.Info.Println("Auth Service running")
+	logger.Info.Println("Auth Service Starting")
+
+	// TLS options. Can be used without, but only for testing!!
+	var useTLS = false
+	t := &tls.Config{}
+	if s.config.TLSConf.Cert != "" && s.config.TLSConf.Key != "" {
+		useTLS = true
+		// TLS Certs
+		cer, err := tls.LoadX509KeyPair(
+			s.config.TLSConf.Cert,
+			s.config.TLSConf.Key)
+		if err != nil {
+			logger.Error.Fatal("Load of TLS certs failed")
+		}
+		t.Certificates = []tls.Certificate{cer}
+	}
 
 	// Load ort generate RSA keys
 	privateKey, err := rsa.ParseRsaKeys(
@@ -71,16 +86,25 @@ func (s *Service) run() {
 
 	srv := &http.Server{
 		Handler: r,
-		Addr:    fmt.Sprintf("127.0.0.1:%s", s.config.Port),
+		Addr:    fmt.Sprintf(":%s", s.config.Port),
 		// Good practice: enforce timeouts for servers you create!
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
+		TLSConfig:    t,
 	}
 
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
-		if err := srv.ListenAndServe(); err != nil {
-			log.Println(err)
+		if useTLS {
+			logger.Info.Println("Auth Service running with TLS enabled")
+			if err := srv.ListenAndServeTLS("", ""); err != nil {
+				logger.Error.Println(err)
+			}
+		} else {
+			logger.Warning.Println("Auth Service running WITHOUT TLS!")
+			if err := srv.ListenAndServe(); err != nil {
+				logger.Error.Println(err)
+			}
 		}
 	}()
 
