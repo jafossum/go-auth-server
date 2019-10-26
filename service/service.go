@@ -9,10 +9,11 @@ import (
 	"net/http"
 	"os"
 	"runtime/debug"
+	"strings"
 	"syscall"
 	"time"
 
-	"github.com/gogo/protobuf/jsonpb"
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/gorilla/mux"
 	rsaa "github.com/jafossum/go-auth-server/crypto/rsa"
 	"github.com/jafossum/go-auth-server/handlers"
@@ -107,8 +108,10 @@ func (s *Service) parseAuthorizationData() (*models.Authorization, error) {
 		return nil, fmt.Errorf("Authorization config file: %s could not be loaded", s.config.UserConf)
 	}
 	a := &models.Authorization{}
-	jsonpb.UnmarshalString(string(js), a)
-
+	err = jsonpb.Unmarshal(strings.NewReader(string(js)), a)
+	if err != nil {
+		return nil, fmt.Errorf("Authorization config could not be parsed: %s", err)
+	}
 	return a, nil
 }
 
