@@ -21,6 +21,9 @@ logs/
 # Test files
 testing/
 
+# Mock files
+mocks/
+
 # Proto files
 *.pb.go
 

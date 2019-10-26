@@ -13,8 +13,17 @@ import (
 	"github.com/jafossum/go-auth-server/utils/logger"
 )
 
+//go:generate mockgen -destination=../mocks/token_handler_mock.go -package=mocks github.com/jafossum/go-auth-server/handlers ITokenHandler
+
+// ITokenHandler : TokenHandler Interace
+type ITokenHandler interface {
+	SetCertificate(privateKey *rsa.PrivateKey)
+	SetAuthorization(authorization *models.Authorization)
+	Handle(w http.ResponseWriter, r *http.Request)
+}
+
 // TokenHandler - JWKS handler
-var TokenHandler = &tokenHandler{}
+var TokenHandler ITokenHandler = &tokenHandler{}
 
 type tokenHandler struct {
 	privateKey    *rsa.PrivateKey
