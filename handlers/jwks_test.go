@@ -20,7 +20,10 @@ func TestCreateJwks(t *testing.T) {
 	key, _ := rsaa.ParseRsaKeys("../test-resources/private.pem", "", "../test-resources/public.pem")
 	j := jwksHandler{key}
 
-	keys := j.createJwks()
+	keys, err := j.createJwks()
+	if err != nil {
+		t.Errorf("EUnexpected error: %v", err)
+	}
 
 	var res = string(len(keys.Keys))
 	var exp = string(1)
@@ -74,7 +77,10 @@ func TestCreateJwksNEToPrivateKey(t *testing.T) {
 	key, _ := rsaa.ParseRsaKeys("../test-resources/private.pem", "", "../test-resources/public.pem")
 	j := jwksHandler{key}
 
-	keys := j.createJwks()
+	keys, err := j.createJwks()
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
 	k := keys.Keys[0]
 
 	// decode the base64 bytes for n

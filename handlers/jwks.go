@@ -35,18 +35,23 @@ func (h *jwksHandler) SetCertificate(privateKey *rsa.PrivateKey) {
 func (h *jwksHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("JWKS Endpoint")
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(h.createJwks())
+	jwks, err := h.createJwks()
+	if err != nil {
+		logger.Error.Printf("JWKS unexpected error: %s", err)
+		http.Error(w, `{"error": "Server error"}`, http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(jwks)
 }
 
-func (h *jwksHandler) createJwks() *models.Jwks {
-	keys := &models.Jwks{}
+func (h *jwksHandler) createJwks() (*models.Jwks, error) {
 	pub, err := rsaa.GetPublicKey(&h.privateKey.PublicKey)
 	if err != nil {
-		return keys
+		return nil, err
 	}
 	fp, err := rsaa.GetSha1Thumbprint(&h.privateKey.PublicKey)
 	if err != nil {
-		return keys
+		return nil, err
 	}
 
 	key := &models.JSONWebKeys{}
@@ -59,6 +64,5 @@ func (h *jwksHandler) createJwks() *models.Jwks {
 	key.Kid = fp
 	key.X5t = fp
 
-	keys.Keys = []models.JSONWebKeys{*key}
-	return keys
+	return &models.Jwks{Keys: []models.JSONWebKeys{*key}}, nil
 }
