@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"crypto/rsa"
-	"crypto/x509"
 	"encoding/json"
 	"net/http"
 
@@ -36,15 +35,19 @@ func (h *jwksHandler) SetCertificate(privateKey *rsa.PrivateKey) {
 func (h *jwksHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	logger.Info.Println("JWKS Endpoint")
 	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(h.createJwks())
+}
 
+func (h *jwksHandler) createJwks() *models.Jwks {
 	keys := &models.Jwks{}
-	k, err := x509.MarshalPKIXPublicKey(&h.privateKey.PublicKey)
+	pub, err := rsaa.GetPublicKey(&h.privateKey.PublicKey)
 	if err != nil {
-		json.NewEncoder(w).Encode(keys)
-		return
+		return keys
 	}
-	pub := base64.EncodeToString(k)
-	fp := rsaa.GetSha1Thumbprint(&h.privateKey.PublicKey)
+	fp, err := rsaa.GetSha1Thumbprint(&h.privateKey.PublicKey)
+	if err != nil {
+		return keys
+	}
 
 	key := &models.JSONWebKeys{}
 	key.Alg = "RSA256"
@@ -57,5 +60,5 @@ func (h *jwksHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	key.X5t = fp
 
 	keys.Keys = []models.JSONWebKeys{*key}
-	json.NewEncoder(w).Encode(keys)
+	return keys
 }

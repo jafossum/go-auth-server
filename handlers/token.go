@@ -3,6 +3,7 @@ package handlers
 import (
 	"crypto/rsa"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -48,21 +49,16 @@ func (h *tokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(req)
 
 	if req.GrantType == "client_credentials" {
-		for _, client := range h.authorization.GetClients() {
-			if client.GetClientId() == req.ClientID && client.GetClientSecret() == req.ClientSecret {
-				j, err := h.generateJWT(req.Audience, client.GetScope(), client.GetIsAdmin())
-				if err != nil {
-					http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
-					return
-				}
-				res := getResponse(j)
-				json.NewEncoder(w).Encode(res)
-				return
-			}
+		res, err := h.handleClientCredentials(req)
+		if err != nil {
+			logger.Warning.Println(err)
+			http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
+			return
 		}
-		http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(res)
 		return
 	}
+	logger.Warning.Printf("GrantType: %s not supported", req.GrantType)
 	http.Error(w, `{"error": "Unsupported Grant Type"}`, http.StatusUnauthorized)
 	return
 }
@@ -71,6 +67,20 @@ type myClaimsStructure struct {
 	*jwt.StandardClaims
 	Admin string `json:"admin"`
 	Scope string `json:"scope"`
+}
+
+func (h *tokenHandler) handleClientCredentials(req *models.TokenRequest) (*models.TokenResponse, error) {
+	for _, client := range h.authorization.GetClients() {
+		if client.GetClientId() == req.ClientID && client.GetClientSecret() == req.ClientSecret {
+			j, err := h.generateJWT(req.Audience, client.GetScope(), client.GetIsAdmin())
+			if err != nil {
+				return nil, err
+			}
+			res := getResponse(j)
+			return res, nil
+		}
+	}
+	return nil, errors.New("No ClientID - ClientSecret found")
 }
 
 func (h *tokenHandler) generateJWT(audience, scope string, admin bool) (string, error) {
@@ -86,7 +96,12 @@ func (h *tokenHandler) generateJWT(audience, scope string, admin bool) (string, 
 		scope,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	token.Header["kid"] = rsaa.GetSha1Thumbprint(&h.privateKey.PublicKey)
+	tp, err := rsaa.GetSha1Thumbprint(&h.privateKey.PublicKey)
+	token.Header["kid"] = tp
+	if err != nil {
+		logger.Error.Printf("Thumbprint error: %s", err.Error())
+		return "", err
+	}
 	tokenString, err := token.SignedString(h.privateKey)
 	if err != nil {
 		logger.Error.Printf("Sign token error: %s", err.Error())
