@@ -40,7 +40,7 @@ func parseConfig() (c *models.ServiceConfig) {
 	flag.StringVar(&r.Pass, "rsa_pass", "", "RSA PrivateKey Password")
 	flag.StringVar(&t.Key, "tls_key", "", "Path to TLS Key")
 	flag.StringVar(&t.Cert, "tls_cert", "", "Path to TLS Certificate")
-	flag.StringVar(&c.UserConf, "user_conf", "", "Path to User Configuration file. Protobuf formatted JSON.")
+	flag.StringVar(&c.UserConf, "user_conf", "./config/auth_conf.json", "Path to User Configuration file. Protobuf formatted JSON.")
 	flag.Parse()
 	c.RSAConf = r
 	c.TLSConf = t
