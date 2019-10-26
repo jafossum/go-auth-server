@@ -1,9 +1,9 @@
 # Go parameters
-AUTH=./config/auth/auth
+MODELS=${PWD}/models
 
 # .PHONY: binaries
 
 all: proto
 
 proto:
-	protoc -I .  --go_out=. ${AUTH}.proto
+	protoc -I .  --proto_path=${MODELS}/proto --go_out=${MODELS} auth.proto

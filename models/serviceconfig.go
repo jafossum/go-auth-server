@@ -1,4 +1,4 @@
-package config
+package models
 
 // ServiceConfig : Config for service
 type ServiceConfig struct {

@@ -14,22 +14,21 @@ import (
 
 	"github.com/gogo/protobuf/jsonpb"
 	"github.com/gorilla/mux"
-	"github.com/jafossum/go-auth-server/config"
-	"github.com/jafossum/go-auth-server/config/auth"
 	rsaa "github.com/jafossum/go-auth-server/crypto/rsa"
 	"github.com/jafossum/go-auth-server/handlers"
 	"github.com/jafossum/go-auth-server/handlers/middleware"
+	"github.com/jafossum/go-auth-server/models"
 	"github.com/jafossum/go-auth-server/utils/logger"
 )
 
 // Service : Service Struct
 type Service struct {
-	config  *config.ServiceConfig
+	config  *models.ServiceConfig
 	forever chan struct{}
 }
 
 // NewService : Create a new service
-func NewService(config *config.ServiceConfig) *Service {
+func NewService(config *models.ServiceConfig) *Service {
 	return &Service{
 		config:  config,
 		forever: make(chan struct{}),
@@ -102,12 +101,12 @@ func (s *Service) run() {
 }
 
 // parseAuthorizationData - Read and parse Authorization data from file
-func (s *Service) parseAuthorizationData() (*auth.Authorization, error) {
+func (s *Service) parseAuthorizationData() (*models.Authorization, error) {
 	js, err := ioutil.ReadFile(s.config.UserConf)
 	if err != nil {
 		return nil, fmt.Errorf("Authorization config file: %s could not be loaded", s.config.UserConf)
 	}
-	a := &auth.Authorization{}
+	a := &models.Authorization{}
 	jsonpb.UnmarshalString(string(js), a)
 
 	return a, nil

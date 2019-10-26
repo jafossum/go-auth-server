@@ -7,7 +7,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/jafossum/go-auth-server/config"
+	"github.com/jafossum/go-auth-server/models"
 	"github.com/jafossum/go-auth-server/service"
 	"github.com/jafossum/go-auth-server/utils/logger"
 	"github.com/namsral/flag"
@@ -28,10 +28,10 @@ func main() {
 }
 
 // parseConfig : Parse config from file, env or commandline
-func parseConfig() (c *config.ServiceConfig) {
-	c = &config.ServiceConfig{}
-	r := &config.RSAConfig{}
-	t := &config.TLSConfig{}
+func parseConfig() (c *models.ServiceConfig) {
+	c = &models.ServiceConfig{}
+	r := &models.RSAConfig{}
+	t := &models.TLSConfig{}
 	flag.String(flag.DefaultConfigFlagname, "", "path to config file")
 	flag.StringVar(&c.LogFile, "log_logfile", "./logs/out.log", "Directory to write logs")
 	flag.StringVar(&c.Port, "port", "9065", "Server port")

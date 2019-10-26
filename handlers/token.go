@@ -3,11 +3,11 @@ package handlers
 import (
 	"crypto/rsa"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/jafossum/go-auth-server/config/auth"
 	rsaa "github.com/jafossum/go-auth-server/crypto/rsa"
 	"github.com/jafossum/go-auth-server/models"
 	"github.com/jafossum/go-auth-server/utils/logger"
@@ -18,7 +18,7 @@ var TokenHandler = &tokenHandler{}
 
 type tokenHandler struct {
 	privateKey    *rsa.PrivateKey
-	authorization *auth.Authorization
+	authorization *models.Authorization
 }
 
 // SetCertificate - Initialize with setting certificates
@@ -27,7 +27,7 @@ func (h *tokenHandler) SetCertificate(privateKey *rsa.PrivateKey) {
 }
 
 // SetAuthorization - Initialize with authorization data
-func (h *tokenHandler) SetAuthorization(authorization *auth.Authorization) {
+func (h *tokenHandler) SetAuthorization(authorization *models.Authorization) {
 	h.authorization = authorization
 }
 
@@ -39,13 +39,19 @@ func (h *tokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewDecoder(r.Body).Decode(req)
 
 	if req.GrantType == "client_credentials" {
-		j, err := h.generateJWT(req.Audience)
-		if err != nil {
-			http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
-			return
+		for _, client := range h.authorization.GetClients() {
+			if client.GetClientId() == req.ClientID && client.GetClientSecret() == req.ClientSecret {
+				j, err := h.generateJWT(req.Audience, client.GetScope(), client.GetIsAdmin())
+				if err != nil {
+					http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
+					return
+				}
+				res := getResponse(j)
+				json.NewEncoder(w).Encode(res)
+				return
+			}
 		}
-		res := getResponse(j)
-		json.NewEncoder(w).Encode(res)
+		http.Error(w, `{"error": "Unauthorized"}`, http.StatusUnauthorized)
 		return
 	}
 	http.Error(w, `{"error": "Unsupported Grant Type"}`, http.StatusUnauthorized)
@@ -54,19 +60,21 @@ func (h *tokenHandler) Handle(w http.ResponseWriter, r *http.Request) {
 
 type myClaimsStructure struct {
 	*jwt.StandardClaims
+	Admin string `json:"admin"`
 	Scope string `json:"scope"`
 }
 
-func (h *tokenHandler) generateJWT(audience string) (string, error) {
+func (h *tokenHandler) generateJWT(audience, scope string, admin bool) (string, error) {
 	// Create the Claims
 	claims := myClaimsStructure{
 		&jwt.StandardClaims{
-			Issuer:    "GolangAuthServer",
+			Issuer:    h.authorization.GetIssuer(),
 			IssuedAt:  time.Now().Unix(),
 			ExpiresAt: time.Now().Add(time.Second * 3600).Unix(),
 			Audience:  audience,
 		},
-		"read:messages admin",
+		fmt.Sprintf("%t", admin),
+		scope,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 	token.Header["kid"] = rsaa.GetSha1Thumbprint(&h.privateKey.PublicKey)
