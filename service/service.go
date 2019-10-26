@@ -12,10 +12,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jafossum/go-auth-server/config"
-	"github.com/jafossum/go-auth-server/crypto/rsa"
 	"github.com/jafossum/go-auth-server/handlers"
 	"github.com/jafossum/go-auth-server/handlers/middleware"
 	"github.com/jafossum/go-auth-server/utils/logger"
+	"github.com/jafossum/go-auth-server/crypto/rsa"
 )
 
 // Service : Service Struct
@@ -62,7 +62,7 @@ func (s *Service) run() {
 	token.SetCertificate(privateKey)
 
 	r := mux.NewRouter()
-	r.Handle("/.well-known/jwks.json", middleware.APIKey(http.HandlerFunc(jwks.Handle))).Methods("GET")
+	r.HandleFunc("/.well-known/jwks.json", jwks.Handle).Methods("GET")
 	r.HandleFunc("/auth/token", token.Handle).Methods("POST")
 	r.Use(middleware.LoggingMiddleware)
 

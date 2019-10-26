@@ -3,8 +3,7 @@ package auth;
 
 message Authorization {
     string api_key = 1;
-    string api_key_value = 2;
-    repeated Client clients = 3;
+    repeated Client clients = 2;
 }
 
 message Client {
