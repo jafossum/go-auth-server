@@ -7,6 +7,7 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/jafossum/go-auth-server/config/auth"
 	rsaa "github.com/jafossum/go-auth-server/crypto/rsa"
 	"github.com/jafossum/go-auth-server/models"
 	"github.com/jafossum/go-auth-server/utils/logger"
@@ -16,12 +17,18 @@ import (
 var TokenHandler = &tokenHandler{}
 
 type tokenHandler struct {
-	privateKey *rsa.PrivateKey
+	privateKey    *rsa.PrivateKey
+	authorization *auth.Authorization
 }
 
 // SetCertificate - Initialize with setting certificates
 func (h *tokenHandler) SetCertificate(privateKey *rsa.PrivateKey) {
 	h.privateKey = privateKey
+}
+
+// SetAuthorization - Initialize with authorization data
+func (h *tokenHandler) SetAuthorization(authorization *auth.Authorization) {
+	h.authorization = authorization
 }
 
 // Handle - Tokewn Endpoint handler

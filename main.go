@@ -2,7 +2,6 @@ package main
 
 import (
 	"io"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -41,6 +40,7 @@ func parseConfig() (c *config.ServiceConfig) {
 	flag.StringVar(&r.Pass, "rsa_pass", "", "RSA PrivateKey Password")
 	flag.StringVar(&t.Key, "tls_key", "", "Path to TLS Key")
 	flag.StringVar(&t.Cert, "tls_cert", "", "Path to TLS Certificate")
+	flag.StringVar(&c.UserConf, "user_conf", "", "Path to User Configuration file. Protobuf formatted JSON.")
 	flag.Parse()
 	c.RSAConf = r
 	c.TLSConf = t
@@ -67,7 +67,7 @@ type Cmd struct {
 
 // Close - Shutdowen routine
 func (c *Cmd) Close() {
-	log.Println("closing program...")
+	logger.Info.Println("closing program...")
 	// wait for program to clean up nicely
 	time.Sleep(2 * time.Second)
 	logger.Info.Println("closed program")
@@ -91,7 +91,7 @@ func blockOnSignal(s *service.Service) {
 
 	// Block again until another signal is received, a shutdown timeout elapses,
 	// or the Command is gracefully closed
-	log.Println("Waiting for clean shutdown...")
+	logger.Info.Println("Waiting for clean shutdown...")
 	select {
 	case <-signalCh:
 		logger.Warning.Println("second signal received, initializing hard shutdown")

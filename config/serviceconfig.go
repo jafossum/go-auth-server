@@ -2,10 +2,11 @@ package config
 
 // ServiceConfig : Config for service
 type ServiceConfig struct {
-	Port    string
-	LogFile string
-	RSAConf *RSAConfig
-	TLSConf *TLSConfig
+	Port     string
+	LogFile  string
+	RSAConf  *RSAConfig
+	TLSConf  *TLSConfig
+	UserConf string
 }
 
 // RSAConfig - RSA filespaths for signing config

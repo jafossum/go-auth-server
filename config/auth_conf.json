@@ -1,0 +1,17 @@
+{
+    "issuer": "AuthServerIssuer",
+    "clients": [
+        {
+            "client_id": "SomeClientID",
+            "client_secret": "SomeSuperSecretSecret",
+            "is_admin": false,
+            "scope": "Some Skope Thing"
+        },
+        {
+            "client_id": "SomeAdmin",
+            "client_secret": "SomeSuperSecretAdminSecret",
+            "is_admin": true,
+            "scope": "Some Skope Thing"
+        }
+    ]
+}

@@ -2,13 +2,13 @@ syntax = "proto3";
 package auth;
 
 message Authorization {
-    string api_key = 1;
+    string issuer = 1;
     repeated Client clients = 2;
 }
 
 message Client {
     string client_id = 1;
     string client_secret = 2;
-    string is_admin = 3;
-    repeated string scope = 4;
+    bool is_admin = 3;
+    string scope = 4;
 }
