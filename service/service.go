@@ -12,10 +12,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/jafossum/go-auth-server/config"
+	"github.com/jafossum/go-auth-server/crypto/rsa"
 	"github.com/jafossum/go-auth-server/handlers"
 	"github.com/jafossum/go-auth-server/handlers/middleware"
 	"github.com/jafossum/go-auth-server/utils/logger"
-	"github.com/jafossum/go-auth-server/crypto/rsa"
 )
 
 // Service : Service Struct
@@ -49,7 +49,10 @@ func (s *Service) run() {
 	logger.Info.Println("Auth Service running")
 
 	// Load ort generate RSA keys
-	privateKey, err := rsa.ParseRsaKeys(s.config.RsaPrivate, s.config.RsaPass, s.config.RsaPublic)
+	privateKey, err := rsa.ParseRsaKeys(
+		s.config.RSAConf.Private,
+		s.config.RSAConf.Pass,
+		s.config.RSAConf.Public)
 	if err != nil {
 		logger.Error.Fatal("Load or Generation of RSA key failed")
 	}
@@ -63,7 +66,7 @@ func (s *Service) run() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/.well-known/jwks.json", jwks.Handle).Methods("GET")
-	r.HandleFunc("/auth/token", token.Handle).Methods("POST")
+	r.HandleFunc("/oauth/token", token.Handle).Methods("POST")
 	r.Use(middleware.LoggingMiddleware)
 
 	srv := &http.Server{

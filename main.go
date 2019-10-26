@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/jafossum/go-auth-server/config"
-	"github.com/jafossum/go-auth-server/utils/logger"
 	"github.com/jafossum/go-auth-server/service"
+	"github.com/jafossum/go-auth-server/utils/logger"
 	"github.com/namsral/flag"
 )
 
@@ -21,7 +21,7 @@ func main() {
 	defer f.Close()
 
 	// Initialize and start runner service
-	s := service.NewService(&c)
+	s := service.NewService(c)
 	s.Start()
 
 	// Run forever
@@ -29,14 +29,21 @@ func main() {
 }
 
 // parseConfig : Parse config from file, env or commandline
-func parseConfig() (c config.ServiceConfig) {
-	c = config.ServiceConfig{}
+func parseConfig() (c *config.ServiceConfig) {
+	c = &config.ServiceConfig{}
+	r := &config.RSAConfig{}
+	t := &config.TLSConfig{}
+	flag.String(flag.DefaultConfigFlagname, "", "path to config file")
 	flag.StringVar(&c.LogFile, "log_logfile", "./logs/out.log", "Directory to write logs")
 	flag.StringVar(&c.Port, "port", "9065", "Server port")
-	flag.StringVar(&c.RsaPrivate, "rsa_private", "", "Path to RSA Private Key")
-	flag.StringVar(&c.RsaPublic, "rsa_public", "", "Path to RSA Public Key")
-	flag.StringVar(&c.RsaPass, "rsa_pass", "", "RSA PrivateKey Password")
+	flag.StringVar(&r.Private, "rsa_private", "", "Path to RSA Private Key")
+	flag.StringVar(&r.Public, "rsa_public", "", "Path to RSA Public Key")
+	flag.StringVar(&r.Pass, "rsa_pass", "", "RSA PrivateKey Password")
+	flag.StringVar(&t.Key, "tls_key", "", "Path to TLS Key")
+	flag.StringVar(&t.Cert, "tls_cert", "", "Path to TLS Certificate")
 	flag.Parse()
+	c.RSAConf = r
+	c.TLSConf = t
 	return
 }
 

@@ -23,3 +23,8 @@ testing/
 
 # Proto files
 *.pb.go
+
+# Environment files
+.env
+auth.conf
+docker.env
