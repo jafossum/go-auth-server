@@ -3,13 +3,13 @@
     "clients": [
         {
             "client_id": "SomeClientID",
-            "client_secret": "SomeSuperSecretSecret",
+            "client_secret": "$2a$10$aEWmjSq.n//mtLRWQ08HkuEjr/Z5CsBd9tKwf84zDyGpjUqlE3Y6y",
             "is_admin": false,
             "scope": "Some Skope Thing"
         },
         {
             "client_id": "SomeAdmin",
-            "client_secret": "SomeSuperSecretAdminSecret",
+            "client_secret": "$2a$10$dW.fvAnRB.zO5/zXBFVM1uti0Pit2ZfgMnQ0tu2Sk7D3VOB4MtKXC",
             "is_admin": true,
             "scope": "Some Skope Thing"
         }

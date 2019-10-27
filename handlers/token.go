@@ -9,6 +9,7 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/jafossum/go-auth-server/crypto/passwd"
 	rsaa "github.com/jafossum/go-auth-server/crypto/rsa"
 	"github.com/jafossum/go-auth-server/models"
 	"github.com/jafossum/go-auth-server/utils/logger"
@@ -71,7 +72,10 @@ type myClaimsStructure struct {
 
 func (h *tokenHandler) handleClientCredentials(req *models.TokenRequest) (*models.TokenResponse, error) {
 	for _, client := range h.authorization.GetClients() {
-		if client.GetClientId() == req.ClientID && client.GetClientSecret() == req.ClientSecret {
+		if client.GetClientId() == req.ClientID {
+			if err := passwd.ComparePasswords(req.ClientSecret, client.GetClientSecret()); err != nil {
+				return nil, err
+			}
 			j, err := h.generateJWT(req.Audience, client.GetScope(), client.GetIsAdmin())
 			if err != nil {
 				return nil, err
