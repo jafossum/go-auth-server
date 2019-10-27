@@ -26,10 +26,6 @@ func HashAndSalt(pwd string) (string, error) {
 }
 
 // ComparePasswords - Validate password and hash
-func ComparePasswords(plainPwd, hashedPwd string) (bool, error) {
-	err := bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(plainPwd))
-	if err != nil {
-		return false, err
-	}
-	return true, nil
+func ComparePasswords(plainPwd, hashedPwd string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPwd), []byte(plainPwd))
 }
