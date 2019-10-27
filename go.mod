@@ -8,4 +8,5 @@ require (
 	github.com/golang/protobuf v1.3.2
 	github.com/gorilla/mux v1.7.3
 	github.com/namsral/flag v1.7.4-pre
+	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
 )
