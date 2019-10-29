@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -16,7 +17,11 @@ import (
 func main() {
 
 	c := parseConfig()
-	f := setLogFile(c.LogFile)
+	f, err := setLogFile(c.LogFile)
+	if err != nil {
+		logger.Error.Fatalln("Failed to open log file", c.LogFile, ":", err)
+		os.Exit(1)
+	}
 	defer f.Close()
 
 	// Initialize and start runner service
@@ -48,16 +53,23 @@ func parseConfig() (c *models.ServiceConfig) {
 }
 
 // setLogFile : Initalises Logger
-func setLogFile(logfile string) *os.File {
+func setLogFile(logfile string) (*os.File, error) {
+	logDir := filepath.Dir(logfile)
+	if _, err := os.Stat(logDir); os.IsNotExist(err) {
+		// logfile path deos not exist. Creating path
+		if err := os.MkdirAll(logDir, os.ModePerm); err != nil {
+			return nil, err
+		}
+	}
 	file, err := os.OpenFile(logfile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
-		logger.Error.Fatalln("Failed to open log file", file, ":", err)
+		return nil, err
 	}
 	multi := io.MultiWriter(file, os.Stdout)
 	mulErr := io.MultiWriter(file, os.Stderr)
 	logger.Init(os.Stdout, multi, multi, mulErr)
 
-	return file
+	return file, nil
 }
 
 // Cmd - Struct for cmd channel
