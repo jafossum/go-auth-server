@@ -146,7 +146,7 @@ func (s *Service) serve(srv *http.Server) {
 			logger.Error.Println(err)
 		}
 	} else {
-		logger.Warning.Println("Auth Service running WITHOUT TLS!")
+		logger.Warning.Print("\n\n######## \nAuth Service running WITHOUT TLS!\n########\n\n")
 		if err := srv.ListenAndServe(); err != nil {
 			logger.Error.Println(err)
 		}
@@ -157,7 +157,7 @@ func (s *Service) serve(srv *http.Server) {
 func catchPanic() {
 	if err := recover(); err != nil {
 		logger.Error.Printf("panic: %v\n\n%s", err, debug.Stack())
-		logger.Error.Println("Sendin SIGINT for clean shutdown")
+		logger.Error.Println("Sending SIGINT for clean shutdown")
 		p, _ := os.FindProcess(syscall.Getpid())
 		p.Signal(syscall.SIGINT)
 	}
