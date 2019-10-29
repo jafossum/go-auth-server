@@ -4,16 +4,68 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/json"
 	"math/big"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	rsaa "github.com/jafossum/go-auth-server/crypto/rsa"
+	"github.com/jafossum/go-auth-server/models"
 	"github.com/jafossum/go-auth-server/utils/logger"
 )
 
 // Important to not get nullpointer on logger!
 func init() {
 	logger.StOutInit()
+}
+
+func TestJwksHandler(t *testing.T) {
+	// Build handler
+	key, _ := rsaa.ParseRsaKeys("../test-resources/private.pem", "", "../test-resources/public.pem")
+	h := JwksHandler
+	h.SetCertificate(key)
+
+	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
+	req, err := http.NewRequest("GET", "/.well-known/jwks.json", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(h.Handle)
+
+	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
+	// directly and pass in our Request and ResponseRecorder.
+	handler.ServeHTTP(rr, req)
+
+	// Check the status code is what we expect.
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	// Check the response body is what we expect.
+	var b = &models.Jwks{}
+	_ = json.NewDecoder(rr.Body).Decode(b)
+
+	var res = string(len(b.Keys))
+	var exp = string(1)
+	if res != exp {
+		t.Errorf("Expected: %v, but got: %v", exp, res)
+	}
+	k := b.Keys[0]
+	res = k.Alg
+	exp = "RSA256"
+	if res != exp {
+		t.Errorf("Expected: %v, but got: %v", exp, res)
+	}
+	res = k.Kty
+	exp = "RSA"
+	if res != exp {
+		t.Errorf("Expected: %v, but got: %v", exp, res)
+	}
 }
 
 func TestCreateJwks(t *testing.T) {
