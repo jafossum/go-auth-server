@@ -24,6 +24,9 @@ testing/
 # Mock files
 mocks/
 
+# Certificate files
+certificates/
+
 # Proto files
 *.pb.go
 
