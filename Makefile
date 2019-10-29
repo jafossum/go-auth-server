@@ -1,12 +1,13 @@
 # Go parameters
 MODELS=${PWD}/models
+GO_SVC=docker
 MOCK=mocks
 
 TEST_PKGS=./crypto/... ./handlers/
 GEN_PKGS=./handlers/...
 VET_PKGS=./crypto/... ./handlers/... ./models ./utils/...
 
-.PHONY: all proto test fmt
+.PHONY: all proto test fmt docker
 
 all: clean proto test fmt
 
@@ -23,3 +24,7 @@ fmt:
 
 proto:
 	protoc -I .  --proto_path=${MODELS}/proto --go_out=${MODELS} auth.proto
+
+# Docker commands
+docker:
+	docker build -t auth-svc -f ./$(GO_SVC)/Dockerfile .
