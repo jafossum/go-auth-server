@@ -55,7 +55,7 @@ Server is by default expecting to find a TLS `server.key` and `server.cert` in t
 
 ### RSA
 
-JWT token is signed with a RSA256 key-value pair. If a `private.pem` and `public.pem` is provided (defualt `./certificate` folder), this will be used. If no files supplied, or the parsing goes wrong, the service will create its own in-memory keypair for signing. When the service uses the self-generated option, the public key will not be exposed, so this might be the most secure option. See the `./config` folder
+JWT token is signed with a RSA256 key-value pair. If a `private.pem` and `public.pem` is provided (defualt not provided), this will be used. If no files supplied, or the parsing goes wrong, the service will create its own in-memory keypair for signing. When the service uses the self-generated option, the public key will not be exposed, so this might be the most secure option. See the `./config` folder
 
 ## Docker
 
