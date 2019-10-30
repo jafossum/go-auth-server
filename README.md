@@ -22,6 +22,17 @@ To obtain a new Acces Token from the service the `https://YOUR_DOMAIN/oauth/toke
 ```
 Currently the server only supports `GRANT_TYPE = client_credentials`.
 
+If client is successfully authenticated, the token response will be the following JSON structure
+```json
+{
+    "token_type": "bearer",
+    "access_token": "JWT-TOKEN",
+    "expires_in": 3600,
+    "refresh_token": "",
+    "scope": ""
+}
+```
+
 #### JWKS Endpoint
 
 To verify the Acces Token, the `https://YOUR_DOMAIN/.well-known/jwks.json` endpoint returns a JSON Web Key Set (JWKS) response form a GET request.
