@@ -7,6 +7,26 @@ https://auth0.com/docs/quickstart/backend
 
 ## Running
 
+### Endpoints
+
+#### Authorization Endpoint
+
+To obtain a new Acces Token from the service the `https://YOUR_DOMAIN/oauth/token` endpoint accepts a POST request with the following body
+```json
+{
+    "grant_type": "GRANT_TYPE",
+    "client_id": "YOUR_CLIENT_ID",
+    "client_secret": "YOUR_CLIENT_SECRET",
+    "audience": "YOUR_API_IDENTIFIER"
+}
+```
+Currently the server only supports `GRANT_TYPE = client_credentials`.
+
+#### JWKS Endpoint
+
+To verify the Acces Token, the `https://YOUR_DOMAIN/.well-known/jwks.json` endpoint returns a JSON Web Key Set (JWKS) response form a GET request.
+[JSON Web Key Set Properties](https://auth0.com/docs/tokens/reference/jwt/jwks-properties)
+
 ### Authorization
 
 For simplicity the authorization is defined by a [`.proto` file](./models/proto/auth.proto). This model definition is generated when running `make`.
